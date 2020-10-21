@@ -28,6 +28,10 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'dockerhub-conn'
+    command: 'login'
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerhub-conn'
     repository: 'pages-k8'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
