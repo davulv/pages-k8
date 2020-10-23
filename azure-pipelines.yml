@@ -32,13 +32,6 @@ steps:
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
     tags: 10
-- task: KubernetesManifest@0
-  inputs:
-    action: 'deploy'
-    kubernetesServiceConnection: 'k8-conn'
-    namespace: 'davulv'
-    manifests: '/pages-deployment.yaml'
-    containers: 'docker.io/davulv/pages-k8:10'
 - task: KubectlInstaller@0
   inputs:
     kubectlVersion: 'latest'
