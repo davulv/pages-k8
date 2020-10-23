@@ -28,10 +28,30 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'dockerhub-conn'
-    command: 'login'
-- task: Docker@2
-  inputs:
-    containerRegistry: 'dockerhub-conn'
     repository: 'davulv/pages-k8'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
+    tags: 10
+- task: KubernetesManifest@0
+  inputs:
+    action: 'deploy'
+    kubernetesServiceConnection: 'k8-conn'
+    namespace: 'davulv'
+    manifests: '/pages-deployment.yaml'
+    containers: 'docker.io/davulv/pages-k8:10'
+- task: KubectlInstaller@0
+  inputs:
+    kubectlVersion: 'latest'
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: 'k8-conn'
+    namespace: 'davulv'
+    command: 'apply'
+    arguments: |
+      -f deployment/pages-namespace.yaml
+      -f deployment/pages-service.yaml
+      -f deployment/pages-deployment.yam
+    secretType: 'dockerRegistry'
+    containerRegistryType: 'Container Registry'
+    dockerRegistryEndpoint: 'dockerhub-conn'
