@@ -61,5 +61,5 @@ steps:
         action: 'deploy'
         kubernetesServiceConnection: 'k8-conn'
         namespace: 'davulv'
-        manifests: '$(System.ArtifactsDirectory)/pages-namespace.yaml  | $(System.ArtifactsDirectory)/pages-service.yaml  | $(System.ArtifactsDirectory)/pages-deployment.yaml'
+        manifests: '$(System.ArtifactsDirectory)/deployment/pages-namespace.yaml'
         containers: 'docker.io/davulv/pages-k8:10'
