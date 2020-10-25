@@ -35,14 +35,10 @@ steps:
 - task: KubectlInstaller@0
   inputs:
     kubectlVersion: 'latest'
-- task: Kubernetes@1
+- task: KubernetesManifest@0
   inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceEndpoint: 'k8-conn'
+    action: 'deploy'
+    kubernetesServiceConnection: 'k8-conn'
     namespace: 'davulv'
-    command: 'apply'
-    arguments: |
-      -f deployment/pages-namespace.yaml  -f deployment/pages-service.yaml  -f deployment/pages-deployment.yaml
-    secretType: 'dockerRegistry'
-    containerRegistryType: 'Container Registry'
-    dockerRegistryEndpoint: 'dockerhub-conn'
+    manifests: 'deployment/pages-namespace.yaml  | deployment/pages-service.yaml  | deployment/pages-deployment.yaml'
+    containers: 'docker.io/davulv/pages-k8:10'
