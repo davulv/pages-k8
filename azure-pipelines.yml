@@ -1,0 +1,65 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- script: echo Hello, world!
+  displayName: 'Run a one-line script'
+
+- script: |
+    echo Add other tasks to build, test, and deploy your project.
+    echo See https://aka.ms/yaml
+  displayName: 'Run a multi-line script'
+- task: Gradle@2
+  inputs:
+    gradleWrapperFile: 'gradlew'
+    tasks: 'build'
+    publishJUnitResults: true
+    testResultsFiles: '**/TEST-*.xml'
+    javaHomeOption: 'JDKVersion'
+    sonarQubeRunAnalysis: false
+- task: Docker@2
+  inputs:
+    containerRegistry: 'dockerhub-conn'
+    repository: 'davulv/pages-k8'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: 10
+- task: KubectlInstaller@0
+  inputs:
+    kubectlVersion: 'latest'
+- task: CopyFiles@2
+  inputs:
+      SourceFolder: '$(System.DefaultWorkingDirectory)'
+      Contents: '**/*.yaml'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+- bash: echo $(System.DefaultWorkingDirectory) && ls $(System.DefaultWorkingDirectory)
+- bash: echo $(Build.ArtifactStagingDirectory) && ls $(Build.ArtifactStagingDirectory)
+- task: PublishBuildArtifacts@1
+  inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'manifests'
+      publishLocation: 'Container'
+    
+- bash: echo $(Build.ArtifactStagingDirectory) && ls $(Build.ArtifactStagingDirectory)
+- task: DownloadPipelineArtifact@2
+  inputs:
+      buildType: 'current'
+      artifactName: 'manifests'
+      itemPattern: '**/*.yaml'
+      targetPath: '$(System.ArtifactsDirectory)'
+- bash: echo $(Build.ArtifactsDirectory) && ls $(Build.ArtifactsDirectory)
+- task: KubernetesManifest@0
+  inputs:
+        action: 'deploy'
+        kubernetesServiceConnection: 'k8-conn'
+        namespace: 'davulv'
+        manifests: '$(System.ArtifactsDirectory)/deployment/pages-namespace.yaml'
+        containers: 'docker.io/davulv/pages-k8:10'
