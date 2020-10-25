@@ -42,8 +42,7 @@ steps:
     namespace: 'davulv'
     command: 'apply'
     arguments: |
-      -f deployment/pages-namespace.yaml | -f deployment/pages-service.yaml
-      -f deployment/pages-deployment.yaml
+      -f deployment/pages-namespace.yaml  -f deployment/pages-service.yaml  -f deployment/pages-deployment.yaml
     secretType: 'dockerRegistry'
     containerRegistryType: 'Container Registry'
     dockerRegistryEndpoint: 'dockerhub-conn'
